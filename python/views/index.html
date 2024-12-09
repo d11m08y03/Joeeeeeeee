@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Ollama Chat</title>
+</head>
+
+<body>
+  <h1>Welcome, {{ current_user.username }}</h1>
+  <textarea id="prompt" placeholder="Enter your prompt..."></textarea>
+  <button onclick="sendPrompt()">Send</button>
+  <div id="response"></div>
+
+  <h2>Conversation History</h2>
+  {% for conv in conversations %}
+  <p><strong>Prompt:</strong> {{ conv.prompt }}</p>
+  <p><strong>Response:</strong> {{ conv.response }}</p>
+  {% endfor %}
+
+  <a href="/logout">Logout</a>
+
+  <script>
+    async function sendPrompt() {
+      const prompt = document.getElementById("prompt").value;
+      const responseDiv = document.getElementById("response");
+      responseDiv.innerText = "Loading...";
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({prompt}),
+      });
+      const result = await response.json();
+      if (response.ok) {
+        responseDiv.innerHTML = `<strong>Response:</strong> ${result.response}`;
+        location.reload();
+      } else {
+        responseDiv.innerText = `Error: ${result.error}`;
+      }
+    }
+  </script>
+</body>
+
+</html>
